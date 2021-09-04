@@ -6,7 +6,7 @@ import NmapController
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(NmapController.Controllers,"/getOpenPorts/<string:host>")
+api.add_resource(NmapController.NMapControllers,"/getOpenPorts/<string:host>")
 
 if __name__ == "__main__": 
     app.run(debug=True)

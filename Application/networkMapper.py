@@ -1,50 +1,50 @@
 from nmap.nmap import PortScanner
 from datetime import datetime
-from Repository.networkMapperRepoistory import sqlConnection
+from Repository.networkMapperRepoistory import NetworkMapperRepository
 from Application.nmapObj import nmapObj
-import json
 
-
-class networkMapper():
+class NetworkMapperApp():
 
     def __init__(self):
-        pass
+        self.portScanner = PortScanner()
+        self.networkMapperRepo = NetworkMapperRepository()
 
     def findOpenPorts(self,host):
-        nm = PortScanner()
-        nm.scan(host, '1-100')
-        listofnmapObj = []
+        #Scan ports 1-1000 for current Host
+        self.portScanner.scan(host, '1-100')
 
+        listOfOpenPortObjs = []
         dateTimeChecked = datetime.now()
-        for proto in nm[host].all_protocols():
-            lport = nm[host][proto].keys()
-            for port in lport:
-                if(nm[host][proto][port]['state'] == 'open'):
-                    listofnmapObj.append(nmapObj(host,port,True,dateTimeChecked))
 
-        x = sqlConnection()
+        #Loop through each scanned port and build list of those that are open
+        for protocols in self.portScanner[host].all_protocols():
+            lport = self.portScanner[host][protocols].keys()
+            for port in lport:
+                if(self.portScanner[host][protocols][port]['state'] == 'open'):
+                    listOfOpenPortObjs.append(nmapObj(host,port,True,dateTimeChecked))
 
         #Get History for Port
-        testing = x.getPortHistory(host)
+        portHistory = self.networkMapperRepo.getPortHistory(host)
 
         #Inserting into Database        
-        x.insertnmapresults(listofnmapObj)
+        self.networkMapperRepo.postOpenPortResults(listOfOpenPortObjs)
 
-        data = {}
-        data['curr'] = self.to_dict(listofnmapObj)
-        data['history'] = self.to_dict(testing)
+        #build return Json Object
+        returnObj = {}
+        returnObj['Current'] = self.toJsonObj(listOfOpenPortObjs)
+        returnObj['History'] = self.toJsonObj(portHistory)
 
-        return data
+        return returnObj
     
-    def to_dict(self,listofnmapObj):
+    def toJsonObj(self,listOfOpenPortObjs):
         data = {}
-        data['Ip'] = listofnmapObj[0].ip
+        data['Ip'] = listOfOpenPortObjs[0].ip
         data['Records'] = []
 
         dateHashLookUp = {}
 
-        for mapObj in listofnmapObj:
-            date = mapObj.date.strftime("%m/%d/%Y, %H:%M:%S")
+        for openPortObj in listOfOpenPortObjs:
+            date = openPortObj.date.strftime("%m/%d/%Y, %H:%M:%S")
             if(date not in dateHashLookUp):
                 data['Records'].append({'Date' : date})
                 dateHashLookUp[date] = len(data['Records'])-1
@@ -52,6 +52,6 @@ class networkMapper():
             if("Ports" not in data['Records'][dateHashLookUp[date]]):
                 data['Records'][dateHashLookUp[date]]["Ports"] = []
             
-            data['Records'][dateHashLookUp[date]]["Ports"].append({mapObj.port:mapObj.status})
+            data['Records'][dateHashLookUp[date]]["Ports"].append({openPortObj.port:openPortObj.status})
             
         return data
