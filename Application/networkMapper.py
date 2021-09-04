@@ -2,16 +2,23 @@ from nmap.nmap import PortScanner
 from datetime import datetime
 from Repository.networkMapperRepoistory import NetworkMapperRepository
 from Application.nmapObj import nmapObj
+from Application.Validation.InputValidation import InputValidation
 
 class NetworkMapperApp():
 
     def __init__(self):
         self.portScanner = PortScanner()
         self.networkMapperRepo = NetworkMapperRepository()
+        self.inputValidation = InputValidation()
 
     def findOpenPorts(self,host):
+
+        self.inputValidation.validateIpAddress(host)
+
         #Scan ports 1-1000 for current Host
         self.portScanner.scan(host, '1-100')
+
+        self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 
         listOfOpenPortObjs = []
         dateTimeChecked = datetime.now()
@@ -23,22 +30,26 @@ class NetworkMapperApp():
                 if(self.portScanner[host][protocols][port]['state'] == 'open'):
                     listOfOpenPortObjs.append(nmapObj(host,port,True,dateTimeChecked))
 
+
+        # if(len(listOfOpenPortObjs) == 0):
+            
+
         #Get History for Port
         portHistory = self.networkMapperRepo.getPortHistory(host)
 
         #Inserting into Database        
-        self.networkMapperRepo.postOpenPortResults(listOfOpenPortObjs)
+        self.networkMapperRepo.postPortResults(listOfOpenPortObjs)
 
         #build return Json Object
         returnObj = {}
-        returnObj['Current'] = self.toJsonObj(listOfOpenPortObjs)
-        returnObj['History'] = self.toJsonObj(portHistory)
+        returnObj['Current'] = self.toJsonObj(listOfOpenPortObjs,host)
+        returnObj['History'] = self.toJsonObj(portHistory,host)
 
         return returnObj
     
-    def toJsonObj(self,listOfOpenPortObjs):
+    def toJsonObj(self,listOfOpenPortObjs,host):
         data = {}
-        data['Ip'] = listOfOpenPortObjs[0].ip
+        data['Ip'] = host#listOfOpenPortObjs[0].ip
         data['Records'] = []
 
         dateHashLookUp = {}
