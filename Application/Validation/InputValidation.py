@@ -10,12 +10,11 @@ class InputValidation():
     def validateIpAddress(self,host):
         try:
             ipaddress.ip_address(host)
-        except Exception as e:
-            raise e
+        except:
+            raise Exception("Invalid IP address for IP: " + host)
 
     def validateScanOfIpAddress(self,scanedPort,host):
         try:
             scanedPort[host]
-        except Exception as e:
-            print("breaking")
-            raise e
+        except:
+            raise Exception("No Scan Results for IP:" + host)

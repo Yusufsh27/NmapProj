@@ -1,6 +1,6 @@
 import mysql.connector
 from Repository.sqlConfigFile import sqlConfigurations
-from Application.nmapObj import nmapObj
+from Application.nmapObj import NmapObj
 
 
 class NetworkMapperRepository():
@@ -21,7 +21,7 @@ class NetworkMapperRepository():
                         status = True
                     else:
                         status = False
-                    listOfOpenPortObjs.append(nmapObj(row[1],row[2],status,row[4]))
+                    listOfOpenPortObjs.append(NmapObj(row[1],row[2],status,row[4]))
 
                 connection.commit()
                 
