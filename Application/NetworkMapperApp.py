@@ -3,7 +3,6 @@ from datetime import datetime
 from Repository.NetworkMapperRepoistory import NetworkMapperRepository
 from Application.NMapObj import NMapObj, Record, PortStatus
 from Application.Validation.InputValidation import InputValidation
-import socket
 
 class NetworkMapperApp():
 
@@ -19,7 +18,7 @@ class NetworkMapperApp():
             hostOrg = host
             host = self.inputValidation.validateHostname(host)
             self.inputValidation.validateIpAddressOrHostname(host,hostOrg)
-            
+
             #Scan ports 1-1000 for current Host
             self.portScanner.scan(host, '1-100')
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host,hostOrg)
@@ -60,7 +59,11 @@ class NetworkMapperApp():
     
     def getPortHistory(self,host):
         try:
-            self.inputValidation.validateIpAddress(host)
+            #Validations
+            hostOrg = host
+            host = self.inputValidation.validateHostname(host)
+            self.inputValidation.validateIpAddressOrHostname(host,hostOrg)
+
 
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
