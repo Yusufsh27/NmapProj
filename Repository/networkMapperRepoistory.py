@@ -1,6 +1,6 @@
 import mysql.connector
 from Repository.sqlConfigFile import sqlConfigurations
-from Application.nmapObj import NmapObj
+from Application.nmapObj import NmapObj, Record, PortStatus
 
 
 class NetworkMapperRepository():
@@ -10,22 +10,16 @@ class NetworkMapperRepository():
 
     def getPortHistory(self,host):
         try:
-            listOfOpenPortObjs = []
             with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd =  self.config.passwd,database= self.config.database) as connection:
                 sql = "SELECT * FROM nmapCallHistory WHERE ip = %s"
                 mycursor = connection.cursor()
                 mycursor.execute(sql, (host,))
                 
-                for row in mycursor:
-                    if(row[3] == 1):
-                        status = True
-                    else:
-                        status = False
-                    listOfOpenPortObjs.append(NmapObj(row[1],row[2],status,row[4]))
 
+                openPortObj = self.buildObject(mycursor,host)
                 connection.commit()
-                
-            return listOfOpenPortObjs
+                return openPortObj
+            
         except Exception as e:
             print(e)
 
@@ -42,3 +36,21 @@ class NetworkMapperRepository():
                 connection.commit()
         except Exception as e:
             print(e)
+
+    def buildObject(self, mycursor,host):
+        openPortObj = NmapObj(host)
+        dateHashLookUp = {}
+        for row in mycursor:
+            date = row[4]
+            if(date not in dateHashLookUp):
+                openPortObj.appendRecord(Record(date))
+                dateHashLookUp[date] = openPortObj.getNumOfRecords()-1
+            if(row[3] == 1):
+                status = True
+            else:
+                status = False
+            portStatus = PortStatus(row[2],status)
+            openPortObj.records[dateHashLookUp[date]].appendPort(portStatus)
+        
+        return openPortObj
+

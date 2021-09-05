@@ -32,7 +32,7 @@ class NetworkMapperApp():
                         OpenPortObj.records[0].appendPort(portStatus)
 
             #Get History for Port
-            #portHistory = self.networkMapperRepo.getPortHistory(host)
+            portHistory = self.networkMapperRepo.getPortHistory(host)
 
             # #Inserting into Database        
             # self.networkMapperRepo.postPortResults(listOfOpenPortObjs)
@@ -40,7 +40,7 @@ class NetworkMapperApp():
             # build return Json Object
             returnObj = {}
             returnObj['Current'] = self.toJsonObj(OpenPortObj)
-            # returnObj['History'] = self.toJsonObj(portHistory,host)
+            returnObj['History'] = self.toJsonObj(portHistory)
 
             return returnObj
 

@@ -5,6 +5,8 @@ class NmapObj():
     
     def appendRecord(self, record):
         self.records.append(record)
+    def getNumOfRecords(self):
+        return len(self.records)
 
 class Record():
     def __init__(self, date):
