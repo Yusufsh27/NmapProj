@@ -1,6 +1,3 @@
-import sys
-sys.path.append('..')
-
 from flask_restful import Resource, Api  
 from flask import abort
 from Application.NetworkMapperApp import NetworkMapperApp

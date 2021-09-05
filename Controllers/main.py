@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 from flask import Flask, request
 from flask_restful import Resource, Api 
 import NmapController

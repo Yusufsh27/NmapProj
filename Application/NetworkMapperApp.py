@@ -41,14 +41,11 @@ class NetworkMapperApp():
             # #Inserting into Database        
             # self.networkMapperRepo.postPortResults(listOfOpenPortObjs)
 
-
             # build return Json Object
             returnObj = {}
             returnObj['Current'] = self.toJsonObj(OpenPortObj)
             returnObj['History'] = self.toJsonObj(portHistory)
             returnObj['Difference'] = difference
-
-
 
             return returnObj
 
