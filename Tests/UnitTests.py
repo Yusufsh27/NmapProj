@@ -5,7 +5,6 @@ import unittest
 from Application.NetworkMapperApp import NetworkMapperApp
 from Application.NMapObj import NMapObj, Record, PortStatus
 from datetime import datetime
-import json
 
 class TestHelperMethods(unittest.TestCase):
 

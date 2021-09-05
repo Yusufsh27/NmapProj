@@ -16,7 +16,7 @@ class NetworkMapperApp():
             self.inputValidation.validateIpAddress(host)
 
             #Scan ports 1-1000 for current Host
-            self.portScanner.scan(host, '1-100')
+            self.portScanner.scan(host, '1-1000')
             
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 
@@ -35,7 +35,6 @@ class NetworkMapperApp():
             portHistory = self.networkMapperRepo.getPortHistory(host)
 
             #Compare Current value vs Last Value
-
             difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
 
             #Inserting into Database        
