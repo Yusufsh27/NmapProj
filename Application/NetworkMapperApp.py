@@ -20,8 +20,8 @@ class NetworkMapperApp():
 
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 
-            OpenPortObj = NMapObj(host)
-            OpenPortObj.appendRecord(Record(datetime.now()))
+            openPortObj = NMapObj(host)
+            openPortObj.appendRecord(Record(datetime.now()))
 
             #Loop through each scanned port and build list of those that are open
             for protocols in self.portScanner[host].all_protocols():
@@ -29,21 +29,21 @@ class NetworkMapperApp():
                 for port in lport:
                     if(self.portScanner[host][protocols][port]['state'] == 'open'):
                         portStatus = PortStatus(port,True)
-                        OpenPortObj.records[0].appendPort(portStatus)
+                        openPortObj.records[0].appendPort(portStatus)
 
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
 
             #Compare Current value vs Last Value
 
-            difference = self.compare(OpenPortObj.records[0].ports, portHistory.records[0].ports)
+            difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
 
-            # #Inserting into Database        
-            # self.networkMapperRepo.postPortResults(listOfOpenPortObjs)
+            #Inserting into Database        
+            self.networkMapperRepo.postPortResults(openPortObj)
 
             # build return Json Object
             returnObj = {}
-            returnObj['Current'] = self.toJsonObj(OpenPortObj)
+            returnObj['Current'] = self.toJsonObj(openPortObj)
             returnObj['History'] = self.toJsonObj(portHistory)
             returnObj['Difference'] = difference
 

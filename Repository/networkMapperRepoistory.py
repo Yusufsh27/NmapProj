@@ -22,14 +22,16 @@ class NetworkMapperRepository():
         except Exception as e:
             print(e)
 
-    def postPortResults(self,listOfOpenPortObjs):
+    def postPortResults(self,openPortObj):
         try:
             with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd =  self.config.passwd,database= self.config.database) as connection:
                 sql = "INSERT INTO nmapCallHistory (ip,portNumber,portStatus,dateChecked) VALUES (%s,%s,%s,%s)"
                 mycursor = connection.cursor()
 
-                for openPortObj in listOfOpenPortObjs:         
-                    val = (openPortObj.ip,openPortObj.port,openPortObj.status,openPortObj.date)   
+                IPAddress = openPortObj.ip
+                dateTimeChecked = openPortObj.records[0].date
+                for port in openPortObj.records[0].ports:
+                    val = (IPAddress,port.portNum,port.status,dateTimeChecked)   
                     mycursor.execute(sql, val)
 
                 connection.commit()

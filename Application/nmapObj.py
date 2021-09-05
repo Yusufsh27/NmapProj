@@ -5,6 +5,7 @@ class NMapObj():
     
     def appendRecord(self, record):
         self.records.append(record)
+        
     def getNumOfRecords(self):
         return len(self.records)
 
@@ -20,22 +21,3 @@ class PortStatus():
     def __init__(self, portNum, status):
         self.portNum = portNum
         self.status = status
-
-
-
-#  "History": {
-#         "Ip": "192.168.1.1",
-#         "Records": [
-#             {
-#                 "Date": "09/02/2021, 19:58:39",
-#                 "Ports": [
-#                     {
-#                         "53": true
-#                     },
-#                     {
-#                         "80": true
-#                     }
-#                 ]
-#             }
-#         ]
-#  }
