@@ -3,6 +3,7 @@ from datetime import datetime
 from Repository.NetworkMapperRepoistory import NetworkMapperRepository
 from Application.NMapObj import NMapObj, Record, PortStatus
 from Application.Validation.InputValidation import InputValidation
+import socket
 
 class NetworkMapperApp():
 
@@ -13,16 +14,20 @@ class NetworkMapperApp():
 
     def findOpenPorts(self,host):
         try:
-            self.inputValidation.validateIpAddress(host)
 
+            #Validations
+            hostOrg = host
+            host = self.inputValidation.validateHostname(host)
+            self.inputValidation.validateIpAddressOrHostname(host,hostOrg)
+            
             #Scan ports 1-1000 for current Host
             self.portScanner.scan(host, '1-100')
-            
-            self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
+            self.inputValidation.validateScanOfIpAddress(self.portScanner,host,hostOrg)
 
             openPortObj = NMapObj(host)
             openPortObj.appendRecord(Record(datetime.now()))
 
+            
             #Loop through each scanned port and build list of those that are open
             for protocols in self.portScanner[host].all_protocols():
                 lport = self.portScanner[host][protocols].keys()
@@ -35,7 +40,9 @@ class NetworkMapperApp():
             portHistory = self.networkMapperRepo.getPortHistory(host)
 
             #Compare Current value vs Last Value
-            difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
+            difference = {}
+            if(len(openPortObj.records) > 0 and len(portHistory.records) > 0):
+                difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
 
             #Inserting into Database        
             self.networkMapperRepo.postPortResults(openPortObj)
@@ -51,6 +58,21 @@ class NetworkMapperApp():
         except Exception as e:
             raise e
     
+    def getPortHistory(self,host):
+        try:
+            self.inputValidation.validateIpAddress(host)
+
+            #Get History for Port
+            portHistory = self.networkMapperRepo.getPortHistory(host)
+
+            # build return Json Object
+            returnObj = {}
+            returnObj['History'] = self.toJsonObj(portHistory)
+
+            return returnObj
+
+        except Exception as e:
+            raise e
 
     def compare(self,currentPortVals, lastPortVals):
         current = {}
@@ -63,20 +85,12 @@ class NetworkMapperApp():
         
         diff = []
         for key in current.keys():
-            tmp = {}
             if(key not in last):
-                tmp["Port"] = key
-                tmp["Current"] = True
-                tmp["Last"] = False
-                diff.append(tmp)
+                diff.append(NetworkMapperApp.insertCompareVals(key,"Open","Closed"))
 
         for key in last.keys():
-            tmp = {}
             if(key not in current):
-                tmp["Port"] = key
-                tmp["Current"] = False
-                tmp["Last"] = True
-                diff.append(tmp)
+                diff.append(NetworkMapperApp.insertCompareVals(key,"Closed","Open"))
         
         return diff
 
@@ -90,6 +104,13 @@ class NetworkMapperApp():
             data['Records'].append({'Date' : date})
             data['Records'][len(data['Records'])-1]["Ports"] = []
             for port in record.ports:
-                    data['Records'][len(data['Records'])-1]["Ports"].append({port.portNum:port.status})
+                    data['Records'][len(data['Records'])-1]["Ports"].append({port.portNum:"Open"})
             
         return data
+    
+    def insertCompareVals(port,current,last):
+        tmp = {}
+        tmp["Port"] = port
+        tmp["Current"] = current
+        tmp["Last"] = last
+        return tmp

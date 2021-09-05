@@ -21,6 +21,18 @@ class NMapControllers(Resource):
             return {"Message" : str(e)}, 400
         except Exception as e:
             return 500
+
+    @app.route("/portHistory/<string:host>", methods=['GET'])
+    def portHistory(host):
+        try:
+            #Find all open ports and history of the host
+            networkMapperObj = NetworkMapperApp()
+            openPortWithHistory = networkMapperObj.getPortHistory(host)
+            return openPortWithHistory
+        except ValueError as e:
+            return {"Message" : str(e)}, 400
+        except Exception as e:
+            return 500
     
     @app.route("/ping", methods=['GET'])
     def ping():

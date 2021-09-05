@@ -34,8 +34,8 @@ class TestHelperMethods(unittest.TestCase):
         self.assertTrue(any(x["Port"] == 5 for x in difference))
         self.assertTrue(any(x["Port"] == 10 for x in difference))
 
-        self.assertTrue(any(x["Port"] == 1 and x["Current"] == True and x["Last"] == False for x in difference))
-        self.assertTrue(any(x["Port"] == 6 and x["Current"] == False and x["Last"] == True for x in difference))
+        self.assertTrue(any(x["Port"] == 1 and x["Current"] == "Open" and x["Last"] == "Closed" for x in difference))
+        self.assertTrue(any(x["Port"] == 6 and x["Current"] == "Closed" and x["Last"] == "Open" for x in difference))
 
     def test_diffence_function_has_no_diff(self):
         currTest = []
