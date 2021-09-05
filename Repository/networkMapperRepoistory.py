@@ -11,10 +11,9 @@ class NetworkMapperRepository():
     def getPortHistory(self,host):
         try:
             with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd =  self.config.passwd,database= self.config.database) as connection:
-                sql = "SELECT * FROM nmapCallHistory WHERE ip = %s"
+                sql = "SELECT * FROM nmapCallHistory WHERE ip = %s ORDER BY dateChecked DESC"
                 mycursor = connection.cursor()
                 mycursor.execute(sql, (host,))
-                
 
                 openPortObj = self.buildObject(mycursor,host)
                 connection.commit()

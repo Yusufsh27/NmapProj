@@ -34,19 +34,55 @@ class NetworkMapperApp():
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
 
+            #Compare Current value vs Last Value
+
+            difference = self.compare(OpenPortObj.records[0].ports, portHistory.records[0].ports)
+
             # #Inserting into Database        
             # self.networkMapperRepo.postPortResults(listOfOpenPortObjs)
+
 
             # build return Json Object
             returnObj = {}
             returnObj['Current'] = self.toJsonObj(OpenPortObj)
             returnObj['History'] = self.toJsonObj(portHistory)
+            returnObj['Difference'] = difference
+
+
 
             return returnObj
 
         except Exception as e:
             raise e
     
+
+    def compare(self,currentPortVals, lastPortVals):
+        current = {}
+        for portVal in currentPortVals:
+            current[portVal.portNum] = portVal.status
+
+        last = {}
+        for portVal in lastPortVals:
+            last[portVal.portNum] = portVal.status
+        
+        diff = []
+        for key in current.keys():
+            tmp = {}
+            if(key not in last):
+                tmp["Port"] = key
+                tmp["Current"] = True
+                tmp["Last"] = False
+                diff.append(tmp)
+
+        for key in last.keys():
+            tmp = {}
+            if(key not in current):
+                tmp["Port"] = key
+                tmp["Current"] = False
+                tmp["Last"] = True
+                diff.append(tmp)
+        
+        return diff
 
     def toJsonObj(self,OpenPortObj):
         data = {}
@@ -61,23 +97,3 @@ class NetworkMapperApp():
                     data['Records'][len(data['Records'])-1]["Ports"].append({port.portNum:port.status})
             
         return data
-
-    # def toJsonObj(self,listOfOpenPortObjs,host):
-    #     data = {}
-    #     data['Ip'] = host#listOfOpenPortObjs[0].ip
-    #     data['Records'] = []
-
-    #     dateHashLookUp = {}
-
-    #     for openPortObj in listOfOpenPortObjs:
-    #         date = openPortObj.date.strftime("%m/%d/%Y, %H:%M:%S")
-    #         if(date not in dateHashLookUp):
-    #             data['Records'].append({'Date' : date})
-    #             dateHashLookUp[date] = len(data['Records'])-1
-                
-    #         if("Ports" not in data['Records'][dateHashLookUp[date]]):
-    #             data['Records'][dateHashLookUp[date]]["Ports"] = []
-            
-    #         data['Records'][dateHashLookUp[date]]["Ports"].append({openPortObj.port:openPortObj.status})
-            
-    #     return data
