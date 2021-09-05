@@ -78,7 +78,7 @@ class TestHelperMethods(unittest.TestCase):
         
         self.assertEqual(len(jsonObj['Records']), len(openPortObj.records))
         self.assertEqual(len(jsonObj['Records'][0]['Ports']), len(openPortObj.records[0].ports))
-        self.assertEqual(jsonObj['Records'][0]['Ports'][0][1], openPortObj.records[0].ports[0].status)
+        self.assertEqual(jsonObj['Records'][0]['Ports'][0][1], 'Open')
 
 if __name__ == '__main__':
     unittest.main()
