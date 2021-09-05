@@ -2,9 +2,10 @@
 
 import unittest
 
-class TestStringMethods(unittest.TestCase):
+class TestHelperMethods(unittest.TestCase):
 
     def test_upper(self):
+        #difference = self.compare(currTest, lastTest)
         self.assertEqual('foo'.upper(), 'FOO')
 
     def test_isupper(self):

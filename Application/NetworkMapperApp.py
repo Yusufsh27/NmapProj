@@ -1,7 +1,7 @@
 from nmap.nmap import PortScanner
 from datetime import datetime
-from Repository.networkMapperRepoistory import NetworkMapperRepository
-from Application.nmapObj import NmapObj, Record, PortStatus
+from Repository.NetworkMapperRepoistory import NetworkMapperRepository
+from Application.NMapObj import NMapObj, Record, PortStatus
 from Application.Validation.InputValidation import InputValidation
 
 class NetworkMapperApp():
@@ -20,7 +20,7 @@ class NetworkMapperApp():
 
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 
-            OpenPortObj = NmapObj(host)
+            OpenPortObj = NMapObj(host)
             OpenPortObj.appendRecord(Record(datetime.now()))
 
             #Loop through each scanned port and build list of those that are open

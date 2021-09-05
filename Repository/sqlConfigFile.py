@@ -1,4 +1,4 @@
-class sqlConfigurations():
+class SQLConfigurations():
 
     def __init__(self):
         self.host = "localhost"

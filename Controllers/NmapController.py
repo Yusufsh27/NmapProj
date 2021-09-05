@@ -3,8 +3,7 @@ sys.path.append('..')
 
 from flask_restful import Resource, Api  
 from flask import abort
-from Application.networkMapper import NetworkMapperApp
-from Repository.networkMapperRepoistory import NetworkMapperRepository
+from Application.NetworkMapperApp import NetworkMapperApp
 
 class NMapControllers(Resource):
     
@@ -16,4 +15,3 @@ class NMapControllers(Resource):
             return openPortWithHistory
         except Exception as e:
             abort(str(e))
-        

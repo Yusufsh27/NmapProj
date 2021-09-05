@@ -1,4 +1,4 @@
-class NmapObj():
+class NMapObj():
     def __init__(self, ip):
         self.ip = ip
         self.records = []

@@ -1,12 +1,12 @@
 import mysql.connector
-from Repository.sqlConfigFile import sqlConfigurations
-from Application.nmapObj import NmapObj, Record, PortStatus
+from Repository.SQLConfigFile import SQLConfigurations
+from Application.NMapObj import NMapObj, Record, PortStatus
 
 
 class NetworkMapperRepository():
     
     def __init__(self):
-        self.config = sqlConfigurations()
+        self.config = SQLConfigurations()
 
     def getPortHistory(self,host):
         try:
@@ -37,7 +37,7 @@ class NetworkMapperRepository():
             print(e)
 
     def buildObject(self, mycursor,host):
-        openPortObj = NmapObj(host)
+        openPortObj = NMapObj(host)
         dateHashLookUp = {}
         for row in mycursor:
             date = row[4]
