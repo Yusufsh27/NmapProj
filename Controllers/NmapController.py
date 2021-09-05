@@ -10,5 +10,7 @@ class NMapControllers(Resource):
             networkMapperObj = NetworkMapperApp()
             openPortWithHistory = networkMapperObj.findOpenPorts(host)
             return openPortWithHistory
+        except ValueError as e:
+            abort(400,str(e))
         except Exception as e:
-            abort(str(e))
+            abort(500)

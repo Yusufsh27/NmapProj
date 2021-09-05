@@ -11,10 +11,10 @@ class InputValidation():
         try:
             ipaddress.ip_address(host)
         except:
-            raise Exception("Invalid IP address for IP: " + host)
+            raise ValueError('Invalid IP address for IP: ' + host + '. Please Renter a valid IP Address')
 
     def validateScanOfIpAddress(self,scanedPort,host):
         try:
             scanedPort[host]
         except:
-            raise Exception("No Scan Results for IP:" + host)
+            raise ValueError('NMap Scan resulted in no results for IP address ' + host  + '. Please renter a valid IP Address')

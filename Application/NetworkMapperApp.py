@@ -17,7 +17,7 @@ class NetworkMapperApp():
 
             #Scan ports 1-1000 for current Host
             self.portScanner.scan(host, '1-100')
-
+            
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 
             openPortObj = NMapObj(host)
