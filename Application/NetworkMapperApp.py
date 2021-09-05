@@ -16,7 +16,7 @@ class NetworkMapperApp():
             self.inputValidation.validateIpAddress(host)
 
             #Scan ports 1-1000 for current Host
-            self.portScanner.scan(host, '1-1000')
+            self.portScanner.scan(host, '1-100')
             
             self.inputValidation.validateScanOfIpAddress(self.portScanner,host)
 

@@ -18,9 +18,9 @@ class NMapControllers(Resource):
             openPortWithHistory = networkMapperObj.findOpenPorts(host)
             return openPortWithHistory
         except ValueError as e:
-            abort(400,str(e))
+            return {"Message" : str(e)}, 400
         except Exception as e:
-            abort(500)
+            return 500
     
     @app.route("/ping", methods=['GET'])
     def ping():

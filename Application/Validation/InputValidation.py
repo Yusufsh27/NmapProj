@@ -1,5 +1,4 @@
 from nmap.nmap import PortScanner
-import re
 import ipaddress
 
 class InputValidation():
