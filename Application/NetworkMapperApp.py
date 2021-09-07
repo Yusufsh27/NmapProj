@@ -1,6 +1,6 @@
 from nmap.nmap import PortScanner
 from datetime import datetime
-from Repository.NetworkMapperRepoistory import NetworkMapperRepository
+from Repository.NetworkMapperRepository import NetworkMapperRepository
 from Application.NMapObj import NMapObj, Record, PortStatus
 from Application.Validation.InputValidation import InputValidation
 
