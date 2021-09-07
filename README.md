@@ -28,6 +28,10 @@
     - go into ~Controllers
     - execute python3 NMapController.py
     - Application should run on your locahost ie.(http://127.0.0.1:5000/)
+    - Need to setup your tables:
+        - WITH A VALID DATABASE ALREADY SETUP in SQLConfigFile
+        - Hit the following endpoint http://127.0.0.1:5000/setupDatabaseTables
+        - This will create your table and index it. The service should be good to run now.
     - In your browser or Postname can execute the following:
         - http://127.0.0.1:5000/ping #To see if service is running correctly
         - http://127.0.0.1:5000/openPorts/<host>  #To get Open Ports and its history for host
