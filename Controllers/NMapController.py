@@ -35,6 +35,17 @@ class NMapControllers(Resource):
         except Exception as e:
             return {"Message" : str(e)}, 500
     
+    @app.route("/setupDatabaseTables", methods=['GET'])
+    def setupDatabaseTables():
+        try:
+            #Find all open ports and history of the host
+            networkMapper = NetworkMapperApp()
+            return networkMapper.setupDatabaseTables()
+        except ValueError as e:
+            return {"Message" : str(e)}, 400
+        except Exception as e:
+            return {"Message" : str(e)}, 500
+
     @app.route("/ping", methods=['GET'])
     def ping():
         return "Success"

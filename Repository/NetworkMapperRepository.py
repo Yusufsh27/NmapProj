@@ -11,7 +11,7 @@ class NetworkMapperRepository():
     def getPortHistory(self,host):
         try:
             with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd =  self.config.passwd,database= self.config.database) as connection:
-                sql = "SELECT * FROM nmapCallHistory WHERE ip = %s ORDER BY dateChecked DESC"
+                sql = "SELECT * FROM nmapCallHistory USE INDEX (idx_ip_dateChecked_portNumber) WHERE ip = %s ORDER BY dateChecked DESC"
                 mycursor = connection.cursor()
                 mycursor.execute(sql, (host,))
 
@@ -38,6 +38,20 @@ class NetworkMapperRepository():
         except Exception as e:
             print(e)
 
+    
+    def setupTables(self):
+        try:
+            with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd = self.config.passwd,database= self.config.database) as connection:
+                mycursor = connection.cursor()
+                sql = "CREATE TABLE nmapCallHistory (id int AUTO_INCREMENT, ip varchar(20), portNumber int, portStatus tinyint(1), dateChecked datetime, PRIMARY KEY(id))"
+                mycursor.execute(sql, ())
+                sql = "CREATE UNIQUE INDEX idx_ip_dateChecked_portNumber ON nmapCallHistory (ip,dateChecked,portNumber)"
+                mycursor.execute(sql, ())
+                connection.commit()
+            
+        except Exception as e:
+            print(e)
+    
     def buildObject(self, mycursor,host):
         openPortObj = NMapObj(host)
         dateHashLookUp = {}

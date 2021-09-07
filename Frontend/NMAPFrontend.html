@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>NMAP Port Scanner</h2>
+
+<form action="javascript:myFunction()">
+  <label for="host">IP Address or Hostname:</label><br>
+  <input type="text" id="host" name="host" value="0.0.0.0"><br>
+  <input type="submit" value="Submit">
+</form>
+
+<p>If you click the "Submit" button, the form-data will be sent to a page called "/action_page.php".</p>
+
+<script>
+    function myFunction() {
+        
+      val = document.getElementById("host").innerHTML
+      console.log(val)
+    }
+</script>
+
+</body>
+</html>

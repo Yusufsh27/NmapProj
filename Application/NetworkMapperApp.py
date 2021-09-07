@@ -137,3 +137,10 @@ class NetworkMapperApp():
         tmp["Current"] = current
         tmp["Last"] = last
         return tmp
+    
+    def setupDatabaseTables(self):
+        try:
+            self.networkMapperRepo.setupTables()
+            return {"Message" : "Success"}
+        except Exception as e:
+            raise e
