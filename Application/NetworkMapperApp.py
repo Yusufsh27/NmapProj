@@ -3,6 +3,7 @@ from datetime import datetime
 from Repository.NetworkMapperRepository import NetworkMapperRepository
 from Application.NMapObj import NMapObj, Record, PortStatus
 from Application.Validation.InputValidation import InputValidation
+import time
 
 class NetworkMapperApp():
 
@@ -20,18 +21,21 @@ class NetworkMapperApp():
             self.inputValidation.IpAddress(host,hostOrg)
 
             #execute Nmap Scan
+            #8 Seconds for 100 Ports IP
+            #129 Seconds for 1000 Ports IP
             openPortObj = self.nMapScan(host,hostOrg)
-            print("here")
 
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
 
             #Compare Current value vs Last Value
+            #2 Seconds for 100 Records
+            #2 Seconds for 1000 Records
             difference = {}
             if(len(openPortObj.records) > 0 and len(portHistory.records) > 0):
                 difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
 
-            #Inserting into Database        
+            #Inserting into Database      
             self.networkMapperRepo.postPortResults(openPortObj)
 
             # build return Json Object
@@ -66,6 +70,8 @@ class NetworkMapperApp():
     def nMapScan(self,host,hostOrg):
         try:
             #Scan ports 1-1000 for current Host
+            #8 Seconds for 100 Ports IP Address
+            #120 Seconds for 1000 Ports IP
             self.portScanner.scan(host, '1-100')
             self.inputValidation.ScanOfIpAddress(self.portScanner,host,hostOrg)
 

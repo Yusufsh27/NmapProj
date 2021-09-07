@@ -4,19 +4,20 @@
 
 <h2>NMAP Port Scanner</h2>
 
-<form action="javascript:myFunction()">
+<form onsubmit="myFunction()">
   <label for="host">IP Address or Hostname:</label><br>
   <input type="text" id="host" name="host" value="0.0.0.0"><br>
   <input type="submit" value="Submit">
 </form>
+<button onclick="myFunction()">submit</button>
 
 <p>If you click the "Submit" button, the form-data will be sent to a page called "/action_page.php".</p>
 
 <script>
-    function myFunction() {
-        
-      val = document.getElementById("host").innerHTML
-      console.log(val)
+    function myFunction(e) {   
+      console.log("here")
+      url = "http://127.0.0.1:5000/openPorts/192.168.1.1"
+      fetch(url, {mode: 'no-cors'}).then(res => console.log(res))
     }
 </script>
 
