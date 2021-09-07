@@ -16,12 +16,12 @@ class NetworkMapperApp():
 
             #Validations
             hostOrg = host
-            host = self.inputValidation.validateHostname(host)
-            self.inputValidation.validateIpAddressOrHostname(host,hostOrg)
+            host = self.inputValidation.Hostname(host)
+            self.inputValidation.IpAddress(host,hostOrg)
 
             #Scan ports 1-1000 for current Host
             self.portScanner.scan(host, '1-100')
-            self.inputValidation.validateScanOfIpAddress(self.portScanner,host,hostOrg)
+            self.inputValidation.ScanOfIpAddress(self.portScanner,host,hostOrg)
 
             openPortObj = NMapObj(host)
             openPortObj.appendRecord(Record(datetime.now()))
@@ -29,8 +29,8 @@ class NetworkMapperApp():
             
             #Loop through each scanned port and build list of those that are open
             for protocols in self.portScanner[host].all_protocols():
-                lport = self.portScanner[host][protocols].keys()
-                for port in lport:
+                portList = self.portScanner[host][protocols].keys()
+                for port in portList:
                     if(self.portScanner[host][protocols][port]['state'] == 'open'):
                         portStatus = PortStatus(port,True)
                         openPortObj.records[0].appendPort(portStatus)
@@ -61,8 +61,8 @@ class NetworkMapperApp():
         try:
             #Validations
             hostOrg = host
-            host = self.inputValidation.validateHostname(host)
-            self.inputValidation.validateIpAddressOrHostname(host,hostOrg)
+            host = self.inputValidation.Hostname(host)
+            self.inputValidation.IpAddress(host,hostOrg)
 
 
             #Get History for Port

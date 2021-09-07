@@ -14,8 +14,8 @@ class NMapControllers(Resource):
     def openPorts(host):
         try:
             #Find all open ports and history of the host
-            networkMapperObj = NetworkMapperApp()
-            openPortWithHistory = networkMapperObj.findOpenPorts(host)
+            networkMapper = NetworkMapperApp()
+            openPortWithHistory = networkMapper.findOpenPorts(host)
             return openPortWithHistory
         except ValueError as e:
             return {"Message" : str(e)}, 400
@@ -25,10 +25,11 @@ class NMapControllers(Resource):
     @app.route("/portHistory/<string:host>", methods=['GET'])
     def portHistory(host):
         try:
-            #Find all open ports and history of the host
+            #Find Port history of host
             networkMapperObj = NetworkMapperApp()
-            openPortWithHistory = networkMapperObj.getPortHistory(host)
-            return openPortWithHistory
+            #History Of IP
+            portHistory = networkMapperObj.getPortHistory(host)
+            return portHistory
         except ValueError as e:
             return {"Message" : str(e)}, 400
         except Exception as e:

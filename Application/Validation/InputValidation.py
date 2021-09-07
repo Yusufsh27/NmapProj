@@ -7,20 +7,20 @@ class InputValidation():
     def __init__(self):
         self.portScanner = PortScanner()
 
-    def validateIpAddressOrHostname(self,host,hostOrg):
+    def IpAddress(self,host,hostOrg):
         try:
             ipaddress.ip_address(host)
         except:
             raise ValueError('Invalid IP address for IP: (' + hostOrg + ') ' + host + '. Please re-enter a valid IP Address')
 
-    def validateHostname(self,host):
+    def Hostname(self,host):
         try:
             ipAddress = socket.gethostbyname(host)
             return ipAddress
         except:
             raise ValueError('Invalid Hostname: ' + host + '. Please re-enter a valid Hostname or IP')
 
-    def validateScanOfIpAddress(self,scanedPort,host,hostOrg):
+    def ScanOfIpAddress(self,scanedPort,host,hostOrg):
         try:
             scanedPort[host]
         except:

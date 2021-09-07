@@ -35,7 +35,7 @@
 
 
 ## Imports Required:
-Nmap: https://pypi.org/project/python-nmap/
-Flask https://flask.palletsprojects.com/en/2.0.x/
-FLASK_RESTFUL https://flask-restful.readthedocs.io/en/latest/
-MYSQL_CONNECTOR https://dev.mysql.com/doc/connector-python/en/
+    - Nmap: https://pypi.org/project/python-nmap/
+    - Flask https://flask.palletsprojects.com/en/2.0.x/
+    - FLASK_RESTFUL https://flask-restful.readthedocs.io/en/latest/
+    - MYSQL_CONNECTOR https://dev.mysql.com/doc/connector-python/en/
