@@ -19,21 +19,9 @@ class NetworkMapperApp():
             host = self.inputValidation.Hostname(host)
             self.inputValidation.IpAddress(host,hostOrg)
 
-            #Scan ports 1-1000 for current Host
-            self.portScanner.scan(host, '1-100')
-            self.inputValidation.ScanOfIpAddress(self.portScanner,host,hostOrg)
-
-            openPortObj = NMapObj(host)
-            openPortObj.appendRecord(Record(datetime.now()))
-
-            
-            #Loop through each scanned port and build list of those that are open
-            for protocols in self.portScanner[host].all_protocols():
-                portList = self.portScanner[host][protocols].keys()
-                for port in portList:
-                    if(self.portScanner[host][protocols][port]['state'] == 'open'):
-                        portStatus = PortStatus(port,True)
-                        openPortObj.records[0].appendPort(portStatus)
+            #execute Nmap Scan
+            openPortObj = self.nMapScan(host,hostOrg)
+            print("here")
 
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
@@ -47,10 +35,8 @@ class NetworkMapperApp():
             self.networkMapperRepo.postPortResults(openPortObj)
 
             # build return Json Object
-            returnObj = {}
-            returnObj['Current'] = self.toJsonObj(openPortObj)
-            returnObj['History'] = self.toJsonObj(portHistory)
-            returnObj['Difference'] = difference
+            returnObj = self.buildReturnObject(openPortObj,portHistory,difference)
+            
 
             return returnObj
 
@@ -77,6 +63,40 @@ class NetworkMapperApp():
         except Exception as e:
             raise e
 
+    def nMapScan(self,host,hostOrg):
+        try:
+            #Scan ports 1-1000 for current Host
+            self.portScanner.scan(host, '1-100')
+            self.inputValidation.ScanOfIpAddress(self.portScanner,host,hostOrg)
+
+            openPortObj = NMapObj(host)
+            openPortObj.appendRecord(Record(datetime.now()))
+
+            #Loop through each scanned port and build list of those that are open
+            for protocols in self.portScanner[host].all_protocols():
+                portList = self.portScanner[host][protocols].keys()
+                for port in portList:
+                    if(self.portScanner[host][protocols][port]['state'] == 'open'):
+                        portStatus = PortStatus(port,True)
+                        openPortObj.records[0].appendPort(portStatus)
+            
+            return openPortObj
+
+        except Exception as e:
+            raise e
+    
+    def buildReturnObject(self,openPortObj,portHistory, difference):
+        try:
+            returnObj = {}
+            returnObj['Current'] = self.toJsonObj(openPortObj)
+            returnObj['History'] = self.toJsonObj(portHistory)
+            returnObj['Difference'] = difference
+            
+            return returnObj
+
+        except Exception as e:
+            raise e
+    
     def compare(self,currentPortVals, lastPortVals):
         current = {}
         for portVal in currentPortVals:

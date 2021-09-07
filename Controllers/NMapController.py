@@ -20,7 +20,7 @@ class NMapControllers(Resource):
         except ValueError as e:
             return {"Message" : str(e)}, 400
         except Exception as e:
-            return 500
+            return {"Message" : str(e)}, 500
 
     @app.route("/portHistory/<string:host>", methods=['GET'])
     def portHistory(host):
@@ -33,7 +33,7 @@ class NMapControllers(Resource):
         except ValueError as e:
             return {"Message" : str(e)}, 400
         except Exception as e:
-            return 500
+            return {"Message" : str(e)}, 500
     
     @app.route("/ping", methods=['GET'])
     def ping():
