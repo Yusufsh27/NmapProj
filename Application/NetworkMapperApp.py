@@ -64,7 +64,7 @@ class NetworkMapperApp():
 
             # build return Json Object
             returnObj = {}
-            returnObj['History'] = self.toJsonObj(portHistory)
+            returnObj['History'] = self.toJsonObjForHistory(portHistory)
 
             return returnObj
 
