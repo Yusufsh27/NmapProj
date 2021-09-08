@@ -3,7 +3,7 @@ sys.path.append('..')
 
 import unittest
 from Application.NetworkMapperApp import NetworkMapperApp
-from Application.NMapObj import NMapObj, Record, PortStatus
+from Application.NMapObj import NMapObj
 from datetime import datetime
 
 class TestHelperMethods(unittest.TestCase):

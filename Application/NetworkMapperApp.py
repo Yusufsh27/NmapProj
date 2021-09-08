@@ -1,7 +1,8 @@
+from typing import Callable
 from nmap.nmap import PortScanner
 from datetime import datetime
 from Repository.NetworkMapperRepository import NetworkMapperRepository
-from Application.NMapObj import NMapObj, Record, PortStatus
+from Application.NMapObj import NMapObj
 from Application.Validation.InputValidation import InputValidation
 import time
 
@@ -20,10 +21,14 @@ class NetworkMapperApp():
             host = self.inputValidation.Hostname(host)
             self.inputValidation.IpAddress(host,hostOrg)
 
+            #Get DateChecked
+            date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+
             #execute Nmap Scan
             #8 Seconds for 100 Ports IP
             #129 Seconds for 1000 Ports IP
-            openPortObj = self.nMapScan(host,hostOrg)
+            portObj = self.nMapScan(host,hostOrg,date)
+
 
             #Get History for Port
             portHistory = self.networkMapperRepo.getPortHistory(host)
@@ -31,15 +36,14 @@ class NetworkMapperApp():
             #Compare Current value vs Last Value
             #2 Seconds for 100 Records
             #2 Seconds for 1000 Records
-            difference = {}
-            if(len(openPortObj.records) > 0 and len(portHistory.records) > 0):
-                difference = self.compare(openPortObj.records[0].ports, portHistory.records[0].ports)
+            difference , portObj = self.compare(portObj, portHistory, date)
 
             #Inserting into Database      
-            self.networkMapperRepo.postPortResults(openPortObj)
+            self.networkMapperRepo.postPortResults(portObj,date)
+
 
             # build return Json Object
-            returnObj = self.buildReturnObject(openPortObj,portHistory,difference)
+            returnObj = self.buildReturnObject(portObj,portHistory,difference,date)
             
 
             return returnObj
@@ -67,35 +71,34 @@ class NetworkMapperApp():
         except Exception as e:
             raise e
 
-    def nMapScan(self,host,hostOrg):
+    def nMapScan(self,host,hostOrg, date):
         try:
             #Scan ports 1-1000 for current Host
             #8 Seconds for 100 Ports IP Address
             #120 Seconds for 1000 Ports IP
-            self.portScanner.scan(host, '1-1000')
+            self.portScanner.scan(host, '1-60')
             self.inputValidation.ScanOfIpAddress(self.portScanner,host,hostOrg)
 
             openPortObj = NMapObj(host)
-            openPortObj.appendRecord(Record(datetime.now()))
 
             #Loop through each scanned port and build list of those that are open
             for protocols in self.portScanner[host].all_protocols():
                 portList = self.portScanner[host][protocols].keys()
                 for port in portList:
                     if(self.portScanner[host][protocols][port]['state'] == 'open'):
-                        portStatus = PortStatus(port,True)
-                        openPortObj.records[0].appendPort(portStatus)
+                        openPortObj.ports[port] = {}
+                        openPortObj.ports[port][date] = "Open"
             
             return openPortObj
 
         except Exception as e:
             raise e
     
-    def buildReturnObject(self,openPortObj,portHistory, difference):
+    def buildReturnObject(self,portObj,portHistory, difference,date):
         try:
             returnObj = {}
-            returnObj['Current'] = self.toJsonObj(openPortObj)
-            returnObj['History'] = self.toJsonObj(portHistory)
+            returnObj['Current'] = self.toJsonObjForCurrent(portObj,date)
+            returnObj['History'] = self.toJsonObjForHistory(portHistory)
             returnObj['Difference'] = difference
             
             return returnObj
@@ -103,45 +106,49 @@ class NetworkMapperApp():
         except Exception as e:
             raise e
     
-    def compare(self,currentPortVals, lastPortVals):
-        current = {}
-        for portVal in currentPortVals:
-            current[portVal.portNum] = portVal.status
-
-        last = {}
-        for portVal in lastPortVals:
-            last[portVal.portNum] = portVal.status
-        
+    def compare(self,currentPortVals, lastPortVals, dateChecked):
         diff = []
-        for key in current.keys():
-            if(key not in last):
-                diff.append(NetworkMapperApp.insertCompareVals(key,"Open","Closed"))
 
-        for key in last.keys():
-            if(key not in current):
-                diff.append(NetworkMapperApp.insertCompareVals(key,"Closed","Open"))
+        for port in currentPortVals.ports.keys():
+            if(port not in lastPortVals.ports):
+                diff.append(NetworkMapperApp.insertCompareVals(port,dateChecked,"Alawys"))
+            else:
+                largestDate = max(lastPortVals.ports[port])
+                if(currentPortVals.ports[port][dateChecked] != lastPortVals.ports[port][largestDate]):
+                    diff.append(NetworkMapperApp.insertCompareVals(port,dateChecked,largestDate))        
         
-        return diff
+        #Values set to being closed
+        for port in lastPortVals.ports.keys():
+            largestDate = max(lastPortVals.ports[port])
+            if(port not in currentPortVals.ports and lastPortVals.ports[port][largestDate] == "Open"):
+                #Add the fact that it is now false
+                currentPortVals.ports[port] = {dateChecked: 'Closed'}
+                diff.append(NetworkMapperApp.insertCompareVals(port,largestDate,dateChecked))
 
-    def toJsonObj(self,OpenPortObj):
+        return diff, currentPortVals
+
+    def toJsonObjForHistory(self,portObj):
         data = {}
-        data['Ip'] = OpenPortObj.ip
-        data['Records'] = []
+        data['Ip'] = portObj.ip
+        data['Ports'] = portObj.ports
 
-        for record in OpenPortObj.records:
-            date = record.date.strftime("%m/%d/%Y, %H:%M:%S")
-            data['Records'].append({'Date' : date})
-            data['Records'][len(data['Records'])-1]["Ports"] = []
-            for port in record.ports:
-                    data['Records'][len(data['Records'])-1]["Ports"].append({port.portNum:"Open"})
-            
         return data
     
-    def insertCompareVals(port,current,last):
+    def toJsonObjForCurrent(self,portObj, date):
+        data = {}
+        data['Ip'] = portObj.ip
+        data['Date'] = date
+        data['Ports'] = {}
+        for port in portObj.ports.keys():
+            data['Ports'][port] = portObj.ports[port][date]
+
+        return data
+    
+    def insertCompareVals(port,open,closed):
         tmp = {}
         tmp["Port"] = port
-        tmp["Current"] = current
-        tmp["Last"] = last
+        tmp[open] = "Open"
+        tmp[closed] = "Closed"
         return tmp
     
     def setupDatabaseTables(self):

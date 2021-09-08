@@ -1,6 +1,7 @@
 import mysql.connector
 from Repository.SQLConfigFile import SQLConfigurations
-from Application.NMapObj import NMapObj, Record, PortStatus
+from Application.NMapObj import NMapObj
+from datetime import datetime
 
 
 class NetworkMapperRepository():
@@ -22,18 +23,19 @@ class NetworkMapperRepository():
         except Exception as e:
             print(e)
 
-    def postPortResults(self,openPortObj):
+    def postPortResults(self,portObj, date):
         try:
             with mysql.connector.connect(host= self.config.host, user= self.config.user, passwd =  self.config.passwd,database= self.config.database) as connection:
                 sql = "INSERT INTO nmapCallHistory (ip,portNumber,portStatus,dateChecked) VALUES (%s,%s,%s,%s)"
                 mycursor = connection.cursor()
 
-                IPAddress = openPortObj.ip
-                dateTimeChecked = openPortObj.records[0].date
-                for port in openPortObj.records[0].ports:
-                    val = (IPAddress,port.portNum,port.status,dateTimeChecked)   
+                IPAddress = portObj.ip
+                dateDB = datetime.strptime(date, '%m/%d/%Y, %H:%M:%S')
+                for port in portObj.ports.keys():
+                    status = True if portObj.ports[port][date] == "Open" else False
+                    val = (IPAddress,port,status,dateDB)   
                     mycursor.execute(sql, val)
-
+                
                 connection.commit()
         except Exception as e:
             print(e)
@@ -53,19 +55,14 @@ class NetworkMapperRepository():
             print(e)
     
     def buildObject(self, mycursor,host):
-        openPortObj = NMapObj(host)
-        dateHashLookUp = {}
-        for row in mycursor:
-            date = row[4]
-            if(date not in dateHashLookUp):
-                openPortObj.appendRecord(Record(date))
-                dateHashLookUp[date] = openPortObj.getNumOfRecords()-1
-            if(row[3] == 1):
-                status = True
-            else:
-                status = False
-            portStatus = PortStatus(row[2],status)
-            openPortObj.records[dateHashLookUp[date]].appendPort(portStatus)
+        portStatusObj = NMapObj(host)
+        for row in mycursor:     
+            port = row[2]
+            if(port not in portStatusObj.ports):
+                portStatusObj.ports[port] = {}
+
+            status = "Open" if row[3] == 1 else "Closed"
+            portStatusObj.ports[port][row[4].strftime("%m/%d/%Y, %H:%M:%S")] = status
         
-        return openPortObj
+        return portStatusObj
 
